@@ -22,7 +22,19 @@ export type Parenthesis = {
 };
 export type Func = {
   type: "function";
-  value: "sin" | "cos" | "tan" | "log" | "abs" | "floor" | "round" | "ceil";
+  value:
+    | "sin"
+    | "cos"
+    | "tan"
+    | "log"
+    | "abs"
+    | "floor"
+    | "round"
+    | "ceil"
+    | "sqrt"
+    | "acos"
+    | "asin"
+    | "atan";
   child: Expression;
 };
 export type Expression = LeftRight | Func | Parenthesis | Variable | Number;
@@ -39,10 +51,21 @@ export type OpenParen = { type: "open" };
 export type Operator = { type: "operator"; value: "-" | "+" | "*" | "/" };
 export type Power = { type: "power" };
 export type Round = { type: "round" };
-export type Trig = { type: "trig"; value: "tan" | "cos" | "sin" };
+export type Sqrt = { type: "sqrt" };
+export type Trig = {
+  type: "trig";
+  value: "tan" | "cos" | "sin" | "asin" | "acos" | "atan";
+};
 export type XSymbol = { type: "x" };
 
-export const supportedTrigOps = new Set<Trig["value"]>(["tan", "cos", "sin"]);
+export const supportedTrigOps = new Set<Trig["value"]>([
+  "tan",
+  "cos",
+  "sin",
+  "acos",
+  "asin",
+  "atan",
+]);
 
 export type Token =
   | Abs
@@ -56,6 +79,7 @@ export type Token =
   | Operator
   | Power
   | Round
+  | Sqrt
   | Trig
   | XSymbol;
 

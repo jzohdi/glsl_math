@@ -21,8 +21,12 @@ Deno.test("Tests basic functionality and syntax", function basicCases() {
   assertEquals(compileToGlsl("-x^2"), "pow(-1.0*x,2.0)");
   assertEquals(compileToGlsl("sin(x)*x^2"), "sin(x)*pow(x,2.0)");
   assertEquals(
-    compileToGlsl("floor(ceil(round(x^2 + ceil(x))))"),
-    "floor(ceil(round(pow(x,2.0)+ceil(x))))",
+    compileToGlsl("floor(ceil(round(x^2 + sqrt(ceil(x)))))"),
+    "floor(ceil(round(pow(x,2.0)+sqrt(ceil(x)))))",
+  );
+  assertEquals(
+    compileToGlsl("acos(atan(asin(x)))"),
+    "acos(atan(asin(x)))",
   );
 });
 

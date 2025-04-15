@@ -4,8 +4,6 @@
  */
 
 import {
-  DecimalNumber,
-  Negative,
   Operator,
   ParsedValue,
   supportedTrigOps,
@@ -66,17 +64,31 @@ function parse(rawFormula: string): Token[] {
   } else if (next === "^") {
     const rest = rawFormula.slice(1);
     return [{ type: "power" } as Token].concat(parse(rest));
-  } else if (next === "s" || next === "c" || next === "t") { // sin, cos, tan
-    const ceil = rawFormula.slice(0, 4);
-    if (ceil === "ceil") {
+  } else if (next === "s" || next === "c" || next === "t" || next === "a") { // sin, cos, tan, asin, acos, atan
+    const ceilOrSqrt = rawFormula.slice(0, 4);
+    if (ceilOrSqrt === "ceil") {
       leader.push({ type: "ceil" });
       return leader.concat(parse(rawFormula.slice(4)));
     }
-    const maybeTrig = ceil.slice(0, 3) as Trig["value"];
+    if (ceilOrSqrt === "sqrt") {
+      leader.push({ type: "sqrt" });
+      return leader.concat(parse(rawFormula.slice(4)));
+    }
+    const maybeArcTrig = ceilOrSqrt as Trig["value"];
+    if (supportedTrigOps.has(maybeArcTrig)) {
+      leader.push({ type: "trig", value: maybeArcTrig });
+      return leader.concat(parse(rawFormula.slice(4)));
+    }
+    const trigOrAbs = ceilOrSqrt.slice(0, 3);
+    const rest = rawFormula.slice(3);
+    if (trigOrAbs === "abs") {
+      leader.push({ type: "abs" });
+      return leader.concat(parse(rawFormula.slice(3)));
+    }
+    const maybeTrig = trigOrAbs as Trig["value"];
     if (!supportedTrigOps.has(maybeTrig)) {
       throw new Error(`unhandled sequence: ${next} in ${rawFormula}`);
     }
-    const rest = rawFormula.slice(3);
     leader.push({ type: "trig", value: maybeTrig });
     return leader.concat(parse(rest));
   } else if (next === "l") {

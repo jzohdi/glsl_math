@@ -81,6 +81,9 @@ export function makeSyntaxTree(tokens: Token[]): Expression | null {
   if (rootToken.type === "round") {
     return parseFunction(tokens, expressionRoot, "round");
   }
+  if (rootToken.type === "sqrt") {
+    return parseFunction(tokens, expressionRoot, "sqrt");
+  }
   throw new Error(
     "Could not complete parsing of expression: " + rootToken.type,
   );
