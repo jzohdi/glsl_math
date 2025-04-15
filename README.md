@@ -1,5 +1,11 @@
 # GLSL Math
 
+https://www.npmjs.com/package/glsl_math
+
+```shell
+npm install glsl_math
+```
+
 Common calculus/math functions include symbols such as ^ (to denote raising to
 the power). However, this symbol is not supported in glsl. This repository
 contains code that takes common expressions and **compiles to a glsl compatible
@@ -8,6 +14,18 @@ string**.
 ## TODO
 
 - rewrite in rust
+
+## Build and Publish
+
+https://deno.com/blog/publish-esm-cjs-module-dnt
+
+```shell
+deno run -A build.ts 1.0.0
+```
+
+```shell
+npm publish ./npm
+```
 
 ## Supported Math Functionality for Transpilation
 
@@ -33,14 +51,13 @@ string**.
 
 ### Common Mathematical Functions
 
-– `sin(x)` 
-– `cos(x)` 
-– `tan(x)`
+– `sin(x)` – `cos(x)` – `tan(x)`
+
 - `asin(x)`
 - `acos(x)`
 - `atan(x)`
-- `log(x)` : natural logarithm; note that GLSL’s log is the natural log
-– `log2(x)`: if supporting logarithms base‑2
+- `log(x)` : natural logarithm; note that GLSL’s log is the natural log –
+  `log2(x)`: if supporting logarithms base‑2
 - `sqrt(x)`
 - `abs(x)`
 - `floor(x)`: rounds down to the nearest integer:
@@ -50,11 +67,3 @@ string**.
 ### Derivative Approximation
 
 - `dFdx(x)` – Approximate derivative with respect to x.
-
-## Publish to npm
-
-https://github.com/denoland/dnt/
-
-```shell
-deno run -A scripts/build_npm.ts 0.1.0
-```

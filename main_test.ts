@@ -1,9 +1,13 @@
-import { assertEquals } from "@std/assert";
+// import { assertEquals } from "@std/assert";
+// import { fail } from "@std/assert/fail";
 import compileToGlsl from "./main.ts";
 import { findRoot } from "./lib/tokens_to_ast.ts";
 import { asTokens } from "./lib/string_to_tokens.ts";
 import { Operator } from "./types.ts";
-import { fail } from "@std/assert/fail";
+import {
+  assertEquals,
+  fail,
+} from "https://deno.land/std@0.203.0/testing/asserts.ts";
 
 Deno.test("Tests basic functionality and syntax", function basicCases() {
   assertEquals(compileToGlsl("2 + 2"), "2.0+2.0");
@@ -52,13 +56,14 @@ Deno.test("find root, when root is + op", () => {
   const root = findRoot(tokens);
   if (root === null) {
     fail("root not found");
+  } else {
+    const rootToken = tokens[root.index];
+    assertEquals(
+      rootToken.type,
+      "operator",
+    );
+    assertEquals(root.index, 11);
   }
-  const rootToken = tokens[root.index];
-  assertEquals(
-    rootToken.type,
-    "operator",
-  );
-  assertEquals(root.index, 11);
 });
 
 Deno.test("find root, when surrounded by paren", () => {
@@ -66,13 +71,14 @@ Deno.test("find root, when surrounded by paren", () => {
   const root = findRoot(tokens);
   if (root === null) {
     fail("root not found");
+  } else {
+    const rootToken = tokens[root.index];
+    assertEquals(
+      rootToken.type,
+      "open",
+    );
+    assertEquals(root.index, 0);
   }
-  const rootToken = tokens[root.index];
-  assertEquals(
-    rootToken.type,
-    "open",
-  );
-  assertEquals(root.index, 0);
 });
 
 Deno.test("find root, when division near end", () => {
@@ -80,12 +86,13 @@ Deno.test("find root, when division near end", () => {
   const root = findRoot(tokens);
   if (root === null) {
     fail("root not found");
+  } else {
+    const rootToken = tokens[root.index];
+    assertEquals(
+      rootToken.type,
+      "operator",
+    );
+    assertEquals((rootToken as Operator).value, "/");
+    assertEquals(root.index, 25);
   }
-  const rootToken = tokens[root.index];
-  assertEquals(
-    rootToken.type,
-    "operator",
-  );
-  assertEquals((rootToken as Operator).value, "/");
-  assertEquals(root.index, 25);
 });
