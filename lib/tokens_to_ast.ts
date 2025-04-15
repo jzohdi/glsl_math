@@ -6,7 +6,7 @@
  * The second pass: parse ^, / as these have strict left/right requirements.
  * The third pass: parse all other: (), log, tan, sin, *, etc. as these will be recursive or be multiplications of eachother
  */
-import { Expression, LeftRight, Operator, Token } from "../types.ts";
+import { Expression, Func, LeftRight, Operator, Token } from "../types.ts";
 
 // TODO: simplify that this is just everything except LeftRight
 export const typesThatDontRequireNext = new Set<Expression["type"]>([
@@ -64,36 +64,41 @@ export function makeSyntaxTree(tokens: Token[]): Expression | null {
     return multWithRight(expression, rightSide);
   }
   if (rootToken.type === "log") {
-    const { endIndex, child } = parseFunctionBody(tokens, expressionRoot, 1);
-    const expression = {
-      type: "function",
-      value: "log",
-      child,
-    } as const;
-    const rightSide = makeSyntaxTree(tokens.slice(endIndex + 1));
-    return multWithRight(expression, rightSide);
+    return parseFunction(tokens, expressionRoot, "log");
   }
   if (rootToken.type === "trig") {
-    const { endIndex, child } = parseFunctionBody(tokens, expressionRoot, 1);
-    const expression = {
-      type: "function",
-      value: rootToken.value,
-      child,
-    } as const;
-    const rightSide = makeSyntaxTree(tokens.slice(endIndex + 1));
-    return multWithRight(expression, rightSide);
+    return parseFunction(tokens, expressionRoot, rootToken.value);
   }
   if (rootToken.type === "abs") {
-    const { endIndex, child } = parseFunctionBody(tokens, expressionRoot, 1);
-    const expression = {
-      type: "function",
-      value: "abs",
-      child,
-    } as const;
-    const rightSide = makeSyntaxTree(tokens.slice(endIndex + 1));
-    return multWithRight(expression, rightSide);
+    return parseFunction(tokens, expressionRoot, "abs");
   }
-  throw new Error("Could not complete parsing of expression");
+  if (rootToken.type === "ceil") {
+    return parseFunction(tokens, expressionRoot, "ceil");
+  }
+  if (rootToken.type === "floor") {
+    return parseFunction(tokens, expressionRoot, "floor");
+  }
+  if (rootToken.type === "round") {
+    return parseFunction(tokens, expressionRoot, "round");
+  }
+  throw new Error(
+    "Could not complete parsing of expression: " + rootToken.type,
+  );
+}
+
+function parseFunction(
+  tokens: Token[],
+  expressionRoot: ExpressionRoot,
+  functionValue: Func["value"],
+) {
+  const { endIndex, child } = parseFunctionBody(tokens, expressionRoot, 1);
+  const expression = {
+    type: "function",
+    value: functionValue,
+    child,
+  } as const;
+  const rightSide = makeSyntaxTree(tokens.slice(endIndex + 1));
+  return multWithRight(expression, rightSide);
 }
 
 function parseFunctionBody(
@@ -240,7 +245,6 @@ function getNextCandidateIndex(tokens: Token[], index: number) {
   if (functionTypes.has(curr.type)) {
     const matchingIndex = findMatchingClose(tokens, index);
     if (matchingIndex === null) {
-      console.log(tokens, index);
       throw new Error("Could not find matching close parenthesis.");
     }
     return matchingIndex + 1;

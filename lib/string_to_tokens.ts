@@ -23,7 +23,7 @@ function addDecimalIfNone(num: string) {
 function clean(formula: string) {
   return formula.trim()
     .replaceAll(/(PI|Pi|pi)/g, "(3.14159265359)") // parens to diff between numbers, ex: 2PIx
-    .replaceAll(/[Ee]/g, "(2.71828182846)") // not sure if should do this here or later
+    .replaceAll(/(?<!c)[Ee](?!i)/g, "(2.71828182846)") // not sure if should do this here or later
     .replaceAll(/-(?=\S)/g, "neg")
     .replaceAll(/\s/g, "");
 }
@@ -67,12 +67,17 @@ function parse(rawFormula: string): Token[] {
     const rest = rawFormula.slice(1);
     return [{ type: "power" } as Token].concat(parse(rest));
   } else if (next === "s" || next === "c" || next === "t") { // sin, cos, tan
-    const value = rawFormula.slice(0, 3) as Trig["value"];
-    if (!supportedTrigOps.has(value)) {
+    const ceil = rawFormula.slice(0, 4);
+    if (ceil === "ceil") {
+      leader.push({ type: "ceil" });
+      return leader.concat(parse(rawFormula.slice(4)));
+    }
+    const maybeTrig = ceil.slice(0, 3) as Trig["value"];
+    if (!supportedTrigOps.has(maybeTrig)) {
       throw new Error(`unhandled sequence: ${next} in ${rawFormula}`);
     }
     const rest = rawFormula.slice(3);
-    leader.push({ type: "trig", value });
+    leader.push({ type: "trig", value: maybeTrig });
     return leader.concat(parse(rest));
   } else if (next === "l") {
     const token = rawFormula.slice(0, 3);
@@ -101,7 +106,6 @@ function parse(rawFormula: string): Token[] {
     leader.push({ type: "round" });
     return leader.concat(parse(rawFormula.slice(5)));
   }
-
   throw new Error(`unhandled character: ${next} in ${rawFormula}`);
 }
 

@@ -22,7 +22,7 @@ export type Parenthesis = {
 };
 export type Func = {
   type: "function";
-  value: "sin" | "cos" | "tan" | "log" | "abs";
+  value: "sin" | "cos" | "tan" | "log" | "abs" | "floor" | "round" | "ceil";
   child: Expression;
 };
 export type Expression = LeftRight | Func | Parenthesis | Variable | Number;
